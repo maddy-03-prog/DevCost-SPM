@@ -8,6 +8,10 @@ import { calculateEffortDuration, calculateLocEffort, calculateProductivityEffor
 import { calculatePhaseDistribution, calculateStaffingProfile } from './cocomo'
 import { calculateDeviationPercent, calculateMethodEstimates, normalizeComparison, summarizeComparison } from './comparison'
 import { applyScenarioRatings, calculateDeltaPercent, calculateExperienceCurve, calculateScenarioMetrics, calculateSensitivity, calculateSizeCurve, ratingPosition } from './whatIf'
+import { calculateReportData } from './report'
+import { initialProject } from '../../store/useProjectStore'
+import { initialSettings } from '../../store/useProjectStore'
+import { buildCsv, createProjectSnapshot, parseProjectSnapshot } from '../projectFile'
 
 const counts = {
   EI: { Low: 2, Average: 3, High: 1 },
@@ -89,6 +93,7 @@ describe('formatting', () => {
   it('formats currency and numbers with locale-appropriate separators', () => {
     expect(formatCurrency(1234567, 'INR')).toContain('12,34,567')
     expect(formatNumber(1234.56, 1)).toBe('1,234.6')
+    expect(formatNumber(1234567, 0, 'en-US')).toBe('1,234,567')
   })
 })
 
@@ -140,5 +145,24 @@ describe('what-if scenarios', () => {
     expect(calculateSensitivity(32, 'Organic', NOMINAL_DRIVERS)).toHaveLength(6)
     expect(calculateSizeCurve(32, 'Organic', NOMINAL_DRIVERS)).toHaveLength(5)
     expect(calculateExperienceCurve(32, 95000, 'Organic', NOMINAL_DRIVERS)).toHaveLength(5)
+  })
+
+  describe('report data', () => {
+    it('collects a complete report from the shared project baseline', () => {
+      const report = calculateReportData(initialProject)
+      expect(report.methods).toHaveLength(5)
+      expect(report.phases.reduce((sum, phase) => sum + phase.percentage, 0)).toBe(100)
+      expect(report.risks.length).toBeGreaterThan(0)
+      expect(report.assumptions.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('project file exports', () => {
+    it('creates and validates a project snapshot and escapes CSV values', () => {
+      const snapshot = createProjectSnapshot(initialProject, initialSettings, [])
+      expect(parseProjectSnapshot(snapshot)).toMatchObject({ version: 1, project: { name: initialProject.name }, scenarios: [] })
+      expect(() => parseProjectSnapshot({ version: 99 })).toThrow('not a supported DevCost')
+      expect(buildCsv([['project', 'name'], ['DevCost', 'A, "B"']])).toBe('"project","name"\r\n"DevCost","A, ""B"""')
+    })
   })
 })

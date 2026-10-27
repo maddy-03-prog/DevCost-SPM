@@ -3,7 +3,8 @@ import { ArrowRight, BadgeDollarSign, BrainCircuit, Clock3, Code2, FileCode2, Ga
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { ChartCard, Card, StatCard } from '../components/ui'
 import { calculateBasicCocomo } from '../lib/estimation/cocomo'
-import { formatCurrency, formatNumber } from '../lib/estimation/format'
+import { formatCurrency } from '../lib/estimation/format'
+import { useNumberFormatter } from '../hooks/useNumberFormatter'
 import { useProjectStore } from '../store/useProjectStore'
 
 const methods = [
@@ -21,10 +22,12 @@ const coneData = [
 export default function Overview() {
   const project = useProjectStore((state) => state.project)
   const currency = useProjectStore((state) => state.settings.currency)
+  const loadDemoProject = useProjectStore((state) => state.loadDemoProject)
+  const formatNumber = useNumberFormatter()
   const summary = calculateBasicCocomo(project.kloc, project.mode)
   const projectCost = summary.effort * project.salary
   return <main className="page-content">
-    <div className="page-heading"><div><span className="eyebrow"><Gauge size={14} /> ESTIMATION OVERVIEW</span><h1>Good estimates start with clarity.</h1><p>Make the trade-offs between scope, time, cost, and risk visible before delivery begins.</p></div><Link className="primary-button" to="/effort">Start estimating <ArrowRight size={16} /></Link></div>
+    <div className="page-heading"><div><span className="eyebrow"><Gauge size={14} /> ESTIMATION OVERVIEW</span><h1>Good estimates start with clarity.</h1><p>Make the trade-offs between scope, time, cost, and risk visible before delivery begins.</p></div><div className="overview-actions"><button className="secondary-button" onClick={loadDemoProject}>Load food delivery demo</button><Link className="primary-button" to="/effort">Start estimating <ArrowRight size={16} /></Link></div></div>
     <section className="overview-hero"><div className="hero-message"><span className="hero-chip">SOFTWARE PROJECT MANAGEMENT</span><h2>Make the Iron Triangle<br /><span>work for your project.</span></h2><p>Every software project balances scope, schedule, and cost. DevCost helps you turn assumptions into an estimate you can explain, compare, and refine.</p><div className="triangle-wrap" aria-label="Iron Triangle: scope, schedule, and cost are interdependent"><div className="triangle-shape" /><span className="triangle-label top">SCOPE</span><span className="triangle-label left">COST</span><span className="triangle-label right">TIME</span><span className="triangle-center">QUALITY</span></div></div><div className="hero-side"><div className="hero-metric"><span className="metric-icon"><Clock3 size={17} /></span><span>Current baseline</span><strong>{formatNumber(summary.effort)} <small>person-months</small></strong></div><div className="hero-rule" /><div className="hero-metric"><span className="metric-icon"><Users size={17} /></span><span>Indicative team</span><strong>{formatNumber(summary.people)} <small>people</small></strong></div><div className="hero-note">Start with a baseline, then test the assumptions that matter most.</div></div></section>
     <section className="summary-stats">
       <StatCard label="Estimated effort" value={`${formatNumber(summary.effort)} PM`} detail={`Basic COCOMO · ${project.kloc} KLOC`} icon={<Gauge size={16} />} />

@@ -3,8 +3,9 @@ import { Activity, Plus, RotateCcw, Save, Trash2 } from 'lucide-react'
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Card, DataTable, Modal, NumberInput, Slider } from '../components/ui'
 import { calculateDeltaPercent, calculateExperienceCurve, calculateScenarioMetrics, calculateSensitivity, calculateSizeCurve, applyScenarioRatings, ratingPosition, type ScenarioControls } from '../lib/estimation/whatIf'
-import { formatCurrency, formatNumber } from '../lib/estimation/format'
+import { formatCurrency } from '../lib/estimation/format'
 import { useProjectStore } from '../store/useProjectStore'
+import { useNumberFormatter } from '../hooks/useNumberFormatter'
 
 const ratingLabels = ['Very low', 'Low', 'Nominal', 'High', 'Very high']
 const complexityLabels = [...ratingLabels, 'Extra high']
@@ -12,6 +13,7 @@ const complexityLabels = [...ratingLabels, 'Extra high']
 export default function WhatIfSimulator() {
   const project = useProjectStore((state) => state.project)
   const settings = useProjectStore((state) => state.settings)
+  const formatNumber = useNumberFormatter()
   const savedScenarios = useProjectStore((state) => state.scenarios)
   const saveScenario = useProjectStore((state) => state.saveScenario)
   const removeScenario = useProjectStore((state) => state.removeScenario)

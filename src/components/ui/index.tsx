@@ -20,7 +20,7 @@ export function Field({ label, unit, info, error, children }: FieldProps) {
 }
 
 export function NumberInput({ label, value, onChange, unit, info, min = 0, step = 1 }: { label: string; value: number; onChange: (value: number) => void; unit?: string; info?: string; min?: number; step?: number }) {
-  return <Field label={label} unit={unit} info={info}><input type="number" min={min} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} /></Field>
+  return <Field label={label} unit={unit} info={info}><input type="number" min={min} step={step} value={value} onChange={(event) => { const parsed = Number(event.target.value); onChange(Number.isFinite(parsed) ? Math.max(min, parsed) : min) }} /></Field>
 }
 
 export function Slider({ label, value, onChange, min, max, unit, info, step = 1 }: { label: string; value: number; onChange: (value: number) => void; min: number; max: number; unit?: string; info?: string; step?: number }) {

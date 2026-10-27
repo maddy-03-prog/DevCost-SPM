@@ -18,8 +18,8 @@ const intermediateCoefficients: Record<DevelopmentMode, { a: number; b: number; 
 }
 const phasePercentages: Record<DevelopmentMode, [number, number, number, number]> = {
   Organic: [6, 40, 38, 16],
-  'Semi-detached': [8, 42, 34, 16],
-  Embedded: [10, 43, 32, 15],
+  'Semi-detached': [7, 42, 33, 18],
+  Embedded: [8, 43, 35, 14],
 }
 
 export const NOMINAL_DRIVERS: CostDriverRatings = {
@@ -71,5 +71,6 @@ export function calculateStaffingProfile(effort: number, duration: number, point
     return { month, value: (month / (sigma * sigma)) * Math.exp(-(month * month) / (2 * sigma * sigma)) }
   })
   const area = raw.reduce((sum, point) => sum + point.value, 0)
-  return raw.map((point) => ({ month: point.month, people: area > 0 ? (point.value / area) * effort : 0 }))
+  const interval = duration / points
+  return raw.map((point) => ({ month: point.month, people: area > 0 ? (point.value / area) * effort / interval : 0 }))
 }

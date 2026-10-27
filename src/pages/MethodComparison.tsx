@@ -4,12 +4,14 @@ import { BarChart3 } from 'lucide-react'
 import { Card, DataTable, NumberInput } from '../components/ui'
 import { METHOD_RADAR } from '../data/methods'
 import { calculateDeviationPercent, calculateMethodEstimates, normalizeComparison, summarizeComparison } from '../lib/estimation/comparison'
-import { formatCurrency, formatNumber } from '../lib/estimation/format'
+import { formatCurrency } from '../lib/estimation/format'
 import { useProjectStore } from '../store/useProjectStore'
+import { useNumberFormatter } from '../hooks/useNumberFormatter'
 
 export default function MethodComparison() {
   const project = useProjectStore((state) => state.project)
   const currency = useProjectStore((state) => state.settings.currency)
+  const formatNumber = useNumberFormatter()
   const updateProject = useProjectStore((state) => state.updateProject)
   const estimates = useMemo(() => calculateMethodEstimates({
     kloc: project.kloc, mode: project.mode, drivers: project.drivers, productivity: project.productivity, fpCounts: project.fpCounts,

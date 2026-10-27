@@ -6,6 +6,6 @@ export function formatCurrency(value: number, currency: CurrencyCode = 'INR'): s
   return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(value)
 }
 
-export function formatNumber(value: number, maximumFractionDigits = 1): string {
-  return new Intl.NumberFormat('en-IN', { maximumFractionDigits }).format(value)
+export function formatNumber(value: number, maximumFractionDigits = 1, locale: 'en-IN' | 'en-US' = 'en-IN'): string {
+  return new Intl.NumberFormat(locale, { maximumFractionDigits }).format(value)
 }

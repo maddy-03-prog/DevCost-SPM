@@ -3,7 +3,7 @@ import { Calculator, Clock3, Users, Zap } from 'lucide-react'
 import { Card, NumberInput, Select, Slider, StatCard, Tabs } from '../components/ui'
 import { calculateEffortDuration, calculateLocEffort, calculateProductivityEffort } from '../lib/estimation/effort'
 import { calculateFunctionPoints } from '../lib/estimation/functionPoints'
-import { formatNumber } from '../lib/estimation/format'
+import { useNumberFormatter } from '../hooks/useNumberFormatter'
 import { useProjectStore } from '../store/useProjectStore'
 
 const gscNames = ['Backup and recovery', 'Data communications', 'Distributed processing', 'Performance', 'Heavily used configuration', 'Online data entry', 'End-user efficiency', 'Online update', 'Complex processing', 'Reusability', 'Installation ease', 'Operational ease', 'Multiple sites', 'Facilitate change']
@@ -14,6 +14,7 @@ type MethodTab = 'LOC-based' | 'Function Points' | 'Productivity-based'
 export default function EffortCalculator() {
   const [tab, setTab] = useState<MethodTab>('LOC-based')
   const project = useProjectStore((state) => state.project)
+  const formatNumber = useNumberFormatter()
   const updateProject = useProjectStore((state) => state.updateProject)
   const fp = useMemo(() => calculateFunctionPoints(project.fpCounts, project.gscRatings, project.fpProductivity, project.fpLanguage), [project.fpCounts, project.gscRatings, project.fpLanguage, project.fpProductivity])
   const result = tab === 'LOC-based'

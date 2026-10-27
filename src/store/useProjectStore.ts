@@ -36,6 +36,7 @@ export type AppSettings = {
   accent: string
   density: 'comfortable' | 'compact'
   currency: CurrencyCode
+  numberFormat: 'Indian' | 'International'
 }
 export type SavedScenario = { id: string; name: string; kloc: number; drivers: CostDriverRatings; teamSize: number; salary: number }
 
@@ -72,6 +73,44 @@ export const initialSettings: AppSettings = {
   accent: '#6258e8',
   density: 'comfortable',
   currency: 'INR',
+  numberFormat: 'Indian',
+}
+
+export const demoProject: Project = {
+  name: 'QuickBite Delivery Platform',
+  description: 'Online food ordering and delivery platform for customers, restaurants, and couriers.',
+  kloc: 48,
+  productivity: 650,
+  fpProductivity: 14,
+  fpCounts: {
+    EI: { Low: 3, Average: 8, High: 2 }, EO: { Low: 2, Average: 5, High: 2 },
+    EQ: { Low: 3, Average: 5, High: 1 }, ILF: { Low: 2, Average: 5, High: 2 }, EIF: { Low: 2, Average: 3, High: 1 },
+  },
+  gscRatings: [4, 4, 3, 5, 3, 5, 4, 4, 4, 3, 3, 3, 4, 3],
+  fpLanguage: 'JavaScript',
+  hoursPerUnit: 10,
+  productivityUnits: 2400,
+  teamSize: 12,
+  salary: 125000,
+  mode: 'Semi-detached',
+  drivers: {
+    RELY: 'H', DATA: 'H', CPLX: 'H', TIME: 'H', STOR: 'N', VIRT: 'N', TURN: 'N',
+    ACAP: 'N', AEXP: 'L', PCAP: 'N', VEXP: 'N', LEXP: 'L', MODP: 'N', TOOL: 'H', SCED: 'N',
+  },
+  budgetTeam: [
+    { role: 'Project Manager', headcount: 1, monthlySalary: 165000, allocation: 80, months: 17.2 },
+    { role: 'Developer', headcount: 7, monthlySalary: 125000, allocation: 100, months: 17.2 },
+    { role: 'QA Engineer', headcount: 2, monthlySalary: 95000, allocation: 100, months: 15 },
+    { role: 'UI/UX Designer', headcount: 1, monthlySalary: 115000, allocation: 70, months: 6 },
+    { role: 'DevOps Engineer', headcount: 1, monthlySalary: 145000, allocation: 60, months: 10 },
+  ],
+  otherCosts: { cloudMonthly: 85000, hardware: 180000, licenses: 240000, tools: 160000, training: 90000, marketing: 450000, office: 120000, thirdPartyApis: 300000, custom: 75000 },
+  contingencyPercent: 12,
+  overheadPercent: 8,
+  taxPercent: 0,
+  optimistic: 200,
+  mostLikely: 260,
+  pessimistic: 370,
 }
 
 type ProjectState = {
@@ -80,6 +119,8 @@ type ProjectState = {
   scenarios: SavedScenario[]
   updateProject: (updates: Partial<Project>) => void
   updateSettings: (updates: Partial<AppSettings>) => void
+  loadDemoProject: () => void
+  loadProjectData: (project: Project, settings: AppSettings, scenarios: SavedScenario[]) => void
   saveScenario: (scenario: SavedScenario) => void
   removeScenario: (id: string) => void
   resetProject: () => void
@@ -92,6 +133,8 @@ export const useProjectStore = create<ProjectState>()(persist((set) => ({
   scenarios: [],
   updateProject: (updates) => set((state) => ({ project: { ...state.project, ...updates } })),
   updateSettings: (updates) => set((state) => ({ settings: { ...state.settings, ...updates } })),
+  loadDemoProject: () => set({ project: demoProject, scenarios: [] }),
+  loadProjectData: (project, settings, scenarios) => set({ project, settings, scenarios }),
   saveScenario: (scenario) => set((state) => ({ scenarios: [...state.scenarios.filter((item) => item.id !== scenario.id), scenario].slice(0, 4) })),
   removeScenario: (id) => set((state) => ({ scenarios: state.scenarios.filter((scenario) => scenario.id !== id) })),
   resetProject: () => set({ project: initialProject }),

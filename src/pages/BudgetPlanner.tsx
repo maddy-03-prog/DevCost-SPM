@@ -4,9 +4,10 @@ import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveCo
 import { Card, DataTable, Field, NumberInput } from '../components/ui'
 import { calculateBudget, calculateCashFlow, calculateCostBreakdown, calculateCostPerUnit, calculateOtherCost, calculatePersonnelCost } from '../lib/estimation/budget'
 import { calculateFunctionPoints } from '../lib/estimation/functionPoints'
-import { formatCurrency, formatNumber } from '../lib/estimation/format'
+import { formatCurrency } from '../lib/estimation/format'
 import { calculateBasicCocomo } from '../lib/estimation/cocomo'
 import { useProjectStore } from '../store/useProjectStore'
+import { useNumberFormatter } from '../hooks/useNumberFormatter'
 
 const roles = ['Project Manager', 'Developer', 'QA Engineer', 'UI/UX Designer', 'DevOps Engineer', 'Business Analyst']
 const otherLabels: Array<{ key: keyof ReturnType<typeof useProjectStore.getState>['project']['otherCosts']; label: string; monthly?: boolean }> = [
@@ -19,6 +20,7 @@ const palette = ['#7469e4', '#61a4dc', '#5bc39b', '#f0b467', '#e78391']
 export default function BudgetPlanner() {
   const project = useProjectStore((state) => state.project)
   const settings = useProjectStore((state) => state.settings)
+  const formatNumber = useNumberFormatter()
   const updateProject = useProjectStore((state) => state.updateProject)
   const months = calculateBasicCocomo(project.kloc, project.mode).duration
   const budget = useMemo(() => calculateBudget(project.budgetTeam, project.otherCosts, { contingencyPercent: project.contingencyPercent, overheadPercent: project.overheadPercent, taxPercent: project.taxPercent }, months), [project.budgetTeam, project.otherCosts, project.contingencyPercent, project.overheadPercent, project.taxPercent, months])

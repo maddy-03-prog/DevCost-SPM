@@ -4,7 +4,7 @@ import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Too
 import { Card, DataTable, NumberInput, Select, StatCard, Tabs } from '../components/ui'
 import { COST_DRIVERS, type DriverKey, type DriverLevel } from '../data/drivers'
 import { calculateBasicCocomo, calculateIntermediateCocomo, calculatePhaseDistribution, calculateStaffingProfile, NOMINAL_DRIVERS, type DevelopmentMode } from '../lib/estimation/cocomo'
-import { formatNumber } from '../lib/estimation/format'
+import { useNumberFormatter } from '../hooks/useNumberFormatter'
 import { useProjectStore } from '../store/useProjectStore'
 
 const modes: Array<{ value: DevelopmentMode; description: string; example: string }> = [
@@ -16,6 +16,7 @@ const modes: Array<{ value: DevelopmentMode; description: string; example: strin
 export default function CocomoCalculator() {
   const [variant, setVariant] = useState<'Basic' | 'Intermediate'>('Basic')
   const project = useProjectStore((state) => state.project)
+  const formatNumber = useNumberFormatter()
   const updateProject = useProjectStore((state) => state.updateProject)
   const result = useMemo(() => variant === 'Basic' ? calculateBasicCocomo(project.kloc, project.mode) : calculateIntermediateCocomo(project.kloc, project.mode, project.drivers), [variant, project.kloc, project.mode, project.drivers])
   const phases = calculatePhaseDistribution(result.effort, project.mode)
