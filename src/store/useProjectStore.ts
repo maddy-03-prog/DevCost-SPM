@@ -37,6 +37,7 @@ export type AppSettings = {
   density: 'comfortable' | 'compact'
   currency: CurrencyCode
 }
+export type SavedScenario = { id: string; name: string; kloc: number; drivers: CostDriverRatings; teamSize: number; salary: number }
 
 export const initialProject: Project = {
   name: 'New software project',
@@ -76,8 +77,11 @@ export const initialSettings: AppSettings = {
 type ProjectState = {
   project: Project
   settings: AppSettings
+  scenarios: SavedScenario[]
   updateProject: (updates: Partial<Project>) => void
   updateSettings: (updates: Partial<AppSettings>) => void
+  saveScenario: (scenario: SavedScenario) => void
+  removeScenario: (id: string) => void
   resetProject: () => void
   resetAll: () => void
 }
@@ -85,12 +89,15 @@ type ProjectState = {
 export const useProjectStore = create<ProjectState>()(persist((set) => ({
   project: initialProject,
   settings: initialSettings,
+  scenarios: [],
   updateProject: (updates) => set((state) => ({ project: { ...state.project, ...updates } })),
   updateSettings: (updates) => set((state) => ({ settings: { ...state.settings, ...updates } })),
+  saveScenario: (scenario) => set((state) => ({ scenarios: [...state.scenarios.filter((item) => item.id !== scenario.id), scenario].slice(0, 4) })),
+  removeScenario: (id) => set((state) => ({ scenarios: state.scenarios.filter((scenario) => scenario.id !== id) })),
   resetProject: () => set({ project: initialProject }),
-  resetAll: () => set({ project: initialProject, settings: initialSettings }),
+  resetAll: () => set({ project: initialProject, settings: initialSettings, scenarios: [] }),
 }), {
   name: 'devcost-project',
   storage: createJSONStorage(() => localStorage),
-  partialize: (state) => ({ project: state.project, settings: state.settings }),
+  partialize: (state) => ({ project: state.project, settings: state.settings, scenarios: state.scenarios }),
 }))

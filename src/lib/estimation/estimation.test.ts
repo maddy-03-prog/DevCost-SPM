@@ -1,11 +1,21 @@
 import { describe, expect, it } from 'vitest'
 import { calculateBasicCocomo, calculateEaf, calculateIntermediateCocomo, NOMINAL_DRIVERS } from './cocomo'
 import { calculateAfp, calculateFunctionPointEffort, calculateFunctionPoints, calculateUfp, calculateVaf, convertFpToLoc, FP_WEIGHTS } from './functionPoints'
-import { calculateBudget, calculateOtherCost, calculatePersonnelCost } from './budget'
+import { calculateBudget, calculateCashFlow, calculateCostBreakdown, calculateCostPerUnit, calculateOtherCost, calculatePersonnelCost } from './budget'
 import { calculatePert, calculatePertExpected, calculatePertStandardDeviation } from './pert'
 import { formatCurrency, formatNumber } from './format'
 import { calculateEffortDuration, calculateLocEffort, calculateProductivityEffort } from './effort'
 import { calculatePhaseDistribution, calculateStaffingProfile } from './cocomo'
+import { calculateDeviationPercent, calculateMethodEstimates, normalizeComparison, summarizeComparison } from './comparison'
+import { applyScenarioRatings, calculateDeltaPercent, calculateExperienceCurve, calculateScenarioMetrics, calculateSensitivity, calculateSizeCurve, ratingPosition } from './whatIf'
+
+const counts = {
+  EI: { Low: 2, Average: 3, High: 1 },
+  EO: { Low: 1, Average: 2, High: 0 },
+  EQ: { Low: 2, Average: 1, High: 1 },
+  ILF: { Low: 1, Average: 2, High: 0 },
+  EIF: { Low: 1, Average: 0, High: 1 },
+}
 
 describe('COCOMO estimation', () => {
   it('calculates the required 32 KLOC organic basic case', () => {
@@ -36,14 +46,6 @@ describe('COCOMO estimation', () => {
 })
 
 describe('function point estimation', () => {
-  const counts = {
-    EI: { Low: 2, Average: 3, High: 1 },
-    EO: { Low: 1, Average: 2, High: 0 },
-    EQ: { Low: 2, Average: 1, High: 1 },
-    ILF: { Low: 1, Average: 2, High: 0 },
-    EIF: { Low: 1, Average: 0, High: 1 },
-  }
-
   it('uses the standard weights and adjustment equations', () => {
     expect(FP_WEIGHTS.EI.Average).toBe(4)
     expect(calculateUfp(counts)).toBe(96)
@@ -73,6 +75,13 @@ describe('budget estimation', () => {
     expect(calculateBudget(team, costs, { contingencyPercent: 10, overheadPercent: 0, taxPercent: 0 }, 3)).toMatchObject({
       personnel: 3000, directOther: 500, overhead: 0, contingency: 350, tax: 0, total: 3850, monthly: 3850 / 3,
     })
+    expect(calculateCostBreakdown(calculateBudget(team, costs, { contingencyPercent: 10, overheadPercent: 0, taxPercent: 0 }, 3))).toEqual([
+      { name: 'Team', value: 3000 }, { name: 'Other costs', value: 500 }, { name: 'Overhead', value: 0 }, { name: 'Contingency', value: 350 }, { name: 'Tax', value: 0 },
+    ])
+    expect(calculateCashFlow(900, 2.2)).toEqual([{ month: 1, amount: 300 }, { month: 2, amount: 300 }, { month: 3, amount: 300 }])
+    expect(calculateCashFlow(900, 0)).toEqual([])
+    expect(calculateCostPerUnit(100, 4)).toBe(25)
+    expect(calculateCostPerUnit(100, 0)).toBe(0)
   })
 })
 
@@ -81,13 +90,55 @@ describe('formatting', () => {
     expect(formatCurrency(1234567, 'INR')).toContain('12,34,567')
     expect(formatNumber(1234.56, 1)).toBe('1,234.6')
   })
+})
 
-  describe('effort methods', () => {
+describe('effort methods', () => {
     it('calculates size, productivity, and team duration', () => {
       expect(calculateLocEffort(10, 500, 5)).toEqual({ personMonths: 20, personHours: 3200, duration: 4 })
       expect(calculateEffortDuration(24, 6)).toBe(4)
       expect(calculateEffortDuration(24, 0)).toBe(0)
       expect(calculateProductivityEffort(100, 8, 4)).toEqual({ personMonths: 5, personHours: 800, duration: 1.25 })
     })
+
+})
+
+describe('method comparison', () => {
+  const estimates = [
+    { method: 'A', effort: 10, duration: 2, teamSize: 5, cost: 100 },
+    { method: 'B', effort: 20, duration: 4, teamSize: 5, cost: 200 },
+    { method: 'C', effort: 30, duration: 6, teamSize: 5, cost: 300 },
+  ]
+
+  it('creates five estimates and summarizes spread with a normalized chart', () => {
+    const fullEstimates = calculateMethodEstimates({
+      kloc: 32, mode: 'Organic', drivers: NOMINAL_DRIVERS, productivity: 500, fpCounts: counts,
+      gscRatings: Array(14).fill(3), fpProductivity: 12, teamSize: 7, salary: 95000,
+      optimistic: 80, mostLikely: 100, pessimistic: 140,
+    })
+    expect(fullEstimates).toHaveLength(5)
+    expect(fullEstimates[4]?.effort).toBeCloseTo(103.333333)
+    expect(summarizeComparison(estimates)).toMatchObject({ min: 10, max: 30, average: 20, variancePercent: 100, recommendedLow: 10, recommendedHigh: 30 })
+    expect(summarizeComparison([]).insight).toContain('Add estimates')
+    expect(normalizeComparison(estimates)).toMatchObject([{ effort: 33.33333333333333 }, { effort: 66.66666666666666 }, { effort: 100 }])
+    expect(normalizeComparison([])).toEqual([])
+    expect(calculateDeviationPercent(30, 20)).toBe(50)
+    expect(calculateDeviationPercent(30, 0)).toBe(0)
+  })
+})
+
+describe('what-if scenarios', () => {
+  it('maps controls, estimates deltas, curves, and driver sensitivity', () => {
+    const controls = { complexity: 6, experience: 5, schedule: 2, tools: 4 }
+    const ratings = applyScenarioRatings(NOMINAL_DRIVERS, controls)
+    expect(ratings).toMatchObject({ CPLX: 'XH', ACAP: 'VH', AEXP: 'VH', PCAP: 'VH', SCED: 'L', TOOL: 'H' })
+    expect(ratingPosition('XH', 'complexity')).toBe(6)
+    expect(ratingPosition('NA')).toBe(3)
+    expect(calculateScenarioMetrics(32, 8, 95000, 'Organic', ratings)).toMatchObject({ team: 8 })
+    expect(calculateScenarioMetrics(32, 0, 95000, 'Organic', ratings).duration).toBe(0)
+    expect(calculateDeltaPercent(100, 120)).toBe(20)
+    expect(calculateDeltaPercent(0, 120)).toBe(0)
+    expect(calculateSensitivity(32, 'Organic', NOMINAL_DRIVERS)).toHaveLength(6)
+    expect(calculateSizeCurve(32, 'Organic', NOMINAL_DRIVERS)).toHaveLength(5)
+    expect(calculateExperienceCurve(32, 95000, 'Organic', NOMINAL_DRIVERS)).toHaveLength(5)
   })
 })

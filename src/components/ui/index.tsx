@@ -23,8 +23,8 @@ export function NumberInput({ label, value, onChange, unit, info, min = 0, step 
   return <Field label={label} unit={unit} info={info}><input type="number" min={min} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} /></Field>
 }
 
-export function Slider({ label, value, onChange, min, max, unit, info }: { label: string; value: number; onChange: (value: number) => void; min: number; max: number; unit?: string; info?: string }) {
-  return <Field label={label} unit={`${value}${unit ? ` ${unit}` : ''}`} info={info}><input className="range-input" type="range" min={min} max={max} value={value} onChange={(event) => onChange(Number(event.target.value))} /></Field>
+export function Slider({ label, value, onChange, min, max, unit, info, step = 1 }: { label: string; value: number; onChange: (value: number) => void; min: number; max: number; unit?: string; info?: string; step?: number }) {
+  return <Field label={label} unit={`${value}${unit ? ` ${unit}` : ''}`} info={info}><input className="range-input" type="range" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} /></Field>
 }
 
 export function Select({ label, value, options, onChange, info }: { label: string; value: string; options: Array<{ label: string; value: string }>; onChange: (value: string) => void; info?: string }) {

@@ -1,0 +1,34 @@
+import { useMemo } from 'react'
+import { Bar, BarChart, CartesianGrid, Legend, PolarAngleAxis, PolarGrid, Radar, RadarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { BarChart3 } from 'lucide-react'
+import { Card, DataTable, NumberInput } from '../components/ui'
+import { METHOD_RADAR } from '../data/methods'
+import { calculateDeviationPercent, calculateMethodEstimates, normalizeComparison, summarizeComparison } from '../lib/estimation/comparison'
+import { formatCurrency, formatNumber } from '../lib/estimation/format'
+import { useProjectStore } from '../store/useProjectStore'
+
+export default function MethodComparison() {
+  const project = useProjectStore((state) => state.project)
+  const currency = useProjectStore((state) => state.settings.currency)
+  const updateProject = useProjectStore((state) => state.updateProject)
+  const estimates = useMemo(() => calculateMethodEstimates({
+    kloc: project.kloc, mode: project.mode, drivers: project.drivers, productivity: project.productivity, fpCounts: project.fpCounts,
+    gscRatings: project.gscRatings, fpProductivity: project.fpProductivity, teamSize: project.teamSize, salary: project.salary,
+    optimistic: project.optimistic, mostLikely: project.mostLikely, pessimistic: project.pessimistic,
+  }), [project.kloc, project.mode, project.drivers, project.productivity, project.fpCounts, project.gscRatings, project.fpProductivity, project.teamSize, project.salary, project.optimistic, project.mostLikely, project.pessimistic])
+  const summary = summarizeComparison(estimates)
+  const chartData = normalizeComparison(estimates)
+  const rows = estimates.map((item) => {
+    const min = item.effort === summary.min
+    const max = item.effort === summary.max
+    const tag = min ? <span className="range-badge low">Lowest</span> : max ? <span className="range-badge high">Highest</span> : null
+    return [<><b>{item.method}</b>{tag}</>, `${formatNumber(item.effort)} PM`, `${formatNumber(item.duration)} mo`, `${formatNumber(item.teamSize)} people`, formatCurrency(item.cost, currency), `${formatNumber(calculateDeviationPercent(item.effort, summary.average))}%`]
+  })
+  return <main className="page-content">
+    <div className="page-heading"><div><span className="eyebrow"><BarChart3 size={14} /> ESTIMATION CROSS-CHECK</span><h1>Method comparison</h1><p>Compare five methods against the same project baseline and spot the assumptions behind the spread.</p></div><span className="currency-badge">5 methods · same project inputs</span></div>
+    <section className="comparison-callout"><span className="callout-mark"><BarChart3 size={19} /></span><div><span className="eyebrow">PLAIN-ENGLISH INSIGHT</span><p>{summary.insight}</p></div><div className="spread-stat"><b>{formatNumber(summary.variancePercent, 0)}%</b><small>effort spread</small></div></section>
+    <Card className="pert-input-card"><div className="section-title-row"><div><span className="eyebrow">THREE-POINT PERT</span><h2>Expert range inputs</h2><p>PERT effort is included alongside parametric methods as a cross-check.</p></div></div><div className="pert-grid"><NumberInput label="Optimistic effort" value={project.optimistic} min={0} step={1} unit="PM" info="Best credible effort outcome, not the ideal outcome." onChange={(optimistic) => updateProject({ optimistic })} /><NumberInput label="Most likely effort" value={project.mostLikely} min={0} step={1} unit="PM" info="Effort judged most probable given current scope and assumptions." onChange={(mostLikely) => updateProject({ mostLikely })} /><NumberInput label="Pessimistic effort" value={project.pessimistic} min={0} step={1} unit="PM" info="High but plausible effort outcome under adverse conditions." onChange={(pessimistic) => updateProject({ pessimistic })} /></div></Card>
+    <section className="comparison-charts"><Card className="chart-card"><div className="section-heading"><h2>Relative method profile</h2><p>Each metric is normalized to its own maximum (100%), so unlike units can be compared visually.</p></div><div className="chart-area"><ResponsiveContainer width="100%" height="100%"><BarChart data={chartData} margin={{ left: -18, right: 12, bottom: 25 }}><CartesianGrid strokeDasharray="3 4" vertical={false} stroke="#ececf3" /><XAxis dataKey="method" interval={0} angle={-15} textAnchor="end" tick={{ fontSize: 8 }} tickLine={false} axisLine={false} /><YAxis domain={[0, 100]} unit="%" tickLine={false} axisLine={false} tick={{ fontSize: 9 }} /><Tooltip formatter={(value) => [`${Number(value).toFixed(0)}%`, 'Relative value']} /><Legend verticalAlign="top" height={28} wrapperStyle={{ fontSize: 9 }} /><Bar dataKey="effort" name="Effort" fill="#776ce2" radius={[3, 3, 0, 0]} /><Bar dataKey="duration" name="Duration" fill="#60a4d5" radius={[3, 3, 0, 0]} /><Bar dataKey="team" name="Team size" fill="#61bc9c" radius={[3, 3, 0, 0]} /><Bar dataKey="cost" name="Labor cost" fill="#f2b66f" radius={[3, 3, 0, 0]} /></BarChart></ResponsiveContainer></div><div className="chart-alt">Read the detailed table for absolute effort, duration, team size, and labor cost values.</div></Card><Card className="chart-card"><div className="section-heading"><h2>Method strengths</h2><p>Qualitative fit scores from 1 (lower) to 5 (higher), for discussion only.</p></div><div className="chart-area"><ResponsiveContainer width="100%" height="100%"><RadarChart data={METHOD_RADAR} outerRadius="67%"><PolarGrid stroke="#e9eaf1" /><PolarAngleAxis dataKey="aspect" tick={{ fontSize: 8, fill: '#85869a' }} /><PolarGrid /><Radar dataKey="loc" name="LOC-based" stroke="#f0b467" fill="#f0b467" fillOpacity={0.1} /><Radar dataKey="fp" name="Function Point" stroke="#60a4d5" fill="#60a4d5" fillOpacity={0.1} /><Radar dataKey="cocomo" name="COCOMO" stroke="#766be2" fill="#766be2" fillOpacity={0.12} /><Radar dataKey="expert" name="Expert / analogy" stroke="#62b997" fill="#62b997" fillOpacity={0.1} /><Tooltip /><Legend verticalAlign="bottom" height={26} wrapperStyle={{ fontSize: 8 }} /></RadarChart></ResponsiveContainer></div><div className="chart-alt">Scores are qualitative fit assumptions, not empirically measured performance. Each axis ranges from 1 to 5.</div></Card></section>
+    <Card className="comparison-table-card"><div className="section-title-row"><div><span className="eyebrow">ABSOLUTE ESTIMATES</span><h2>Side-by-side results</h2></div><div className="summary-range"><span>Min {formatNumber(summary.min)} PM</span><span>Average {formatNumber(summary.average)} PM</span><span>Max {formatNumber(summary.max)} PM</span></div></div><DataTable headers={['Method', 'Effort', 'Duration', 'Team size', 'Labor cost', 'vs. average']} rows={rows} /><p className="chart-alt">Variance is shown relative to the average effort across the five estimates. Labor cost uses the shared average monthly salary.</p></Card>
+  </main>
+}
