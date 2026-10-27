@@ -12,6 +12,11 @@ export type Project = {
   kloc: number
   productivity: number
   fpProductivity: number
+  fpCounts: { EI: { Low: number; Average: number; High: number }; EO: { Low: number; Average: number; High: number }; EQ: { Low: number; Average: number; High: number }; ILF: { Low: number; Average: number; High: number }; EIF: { Low: number; Average: number; High: number } }
+  gscRatings: number[]
+  fpLanguage: 'Java' | 'Python' | 'JavaScript' | 'C' | 'C++' | 'C#'
+  hoursPerUnit: number
+  productivityUnits: number
   teamSize: number
   salary: number
   mode: DevelopmentMode
@@ -39,6 +44,14 @@ export const initialProject: Project = {
   kloc: 32,
   productivity: 500,
   fpProductivity: 12,
+  fpCounts: {
+    EI: { Low: 2, Average: 3, High: 1 }, EO: { Low: 1, Average: 2, High: 0 },
+    EQ: { Low: 2, Average: 1, High: 1 }, ILF: { Low: 1, Average: 2, High: 0 }, EIF: { Low: 1, Average: 0, High: 1 },
+  },
+  gscRatings: Array(14).fill(3),
+  fpLanguage: 'JavaScript',
+  hoursPerUnit: 8,
+  productivityUnits: 1200,
   teamSize: 7,
   salary: 95000,
   mode: 'Organic',

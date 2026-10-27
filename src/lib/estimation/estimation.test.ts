@@ -4,6 +4,8 @@ import { calculateAfp, calculateFunctionPointEffort, calculateFunctionPoints, ca
 import { calculateBudget, calculateOtherCost, calculatePersonnelCost } from './budget'
 import { calculatePert, calculatePertExpected, calculatePertStandardDeviation } from './pert'
 import { formatCurrency, formatNumber } from './format'
+import { calculateEffortDuration, calculateLocEffort, calculateProductivityEffort } from './effort'
+import { calculatePhaseDistribution, calculateStaffingProfile } from './cocomo'
 
 describe('COCOMO estimation', () => {
   it('calculates the required 32 KLOC organic basic case', () => {
@@ -22,6 +24,14 @@ describe('COCOMO estimation', () => {
     const ratings = { ...NOMINAL_DRIVERS, RELY: 'H' as const, ACAP: 'L' as const }
     expect(calculateEaf(ratings)).toBeCloseTo(1.15 * 1.19)
     expect(calculateIntermediateCocomo(10, 'Organic', ratings).effort).toBeGreaterThan(calculateIntermediateCocomo(10, 'Organic', NOMINAL_DRIVERS).effort)
+  })
+
+  it('distributes effort by mode and creates a normalized staffing profile', () => {
+    expect(calculatePhaseDistribution(100, 'Organic').map((phase) => phase.percentage)).toEqual([6, 40, 38, 16])
+    const profile = calculateStaffingProfile(120, 12)
+    expect(profile).toHaveLength(12)
+    expect(profile.reduce((sum, point) => sum + point.people, 0)).toBeCloseTo(120)
+    expect(calculateStaffingProfile(10, 0)).toEqual([])
   })
 })
 
@@ -70,5 +80,14 @@ describe('formatting', () => {
   it('formats currency and numbers with locale-appropriate separators', () => {
     expect(formatCurrency(1234567, 'INR')).toContain('12,34,567')
     expect(formatNumber(1234.56, 1)).toBe('1,234.6')
+  })
+
+  describe('effort methods', () => {
+    it('calculates size, productivity, and team duration', () => {
+      expect(calculateLocEffort(10, 500, 5)).toEqual({ personMonths: 20, personHours: 3200, duration: 4 })
+      expect(calculateEffortDuration(24, 6)).toBe(4)
+      expect(calculateEffortDuration(24, 0)).toBe(0)
+      expect(calculateProductivityEffort(100, 8, 4)).toEqual({ personMonths: 5, personHours: 800, duration: 1.25 })
+    })
   })
 })
