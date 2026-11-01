@@ -171,14 +171,16 @@ The application is deployed using Netlify.
 
 ## 👥 Contributors
 
-This project is developed collaboratively.
+This project is developed collaboratively by:
 
-| Contributor | Role |
-|---|---|
-| Madhan Kumar | Project development and implementation |
-| Project Collaborator | Collaborative development and implementation |
+| Contributor | GitHub Profile | Role |
+|---|---|---|
+| **Madhan Kumar** | [@maddy-03-prog](https://github.com/maddy-03-prog) | Project development and implementation |
+| **Hemnath** | [@hemnath-s](https://github.com/hemnath-s) | Collaborative development and implementation |
 
-## 🎯 Project Objectives
+We worked together to design, develop, and improve DevCost as part of our Software Project Management project.
+
+👨‍💻 **Developed by:** [Madhan Kumar](https://github.com/maddy-03-prog) & [Hemnath](https://github.com/hemnath-s)
 
 - Simplify software development cost estimation.
 - Understand and apply software estimation models.
