@@ -1,68 +1,215 @@
-# DevCost: Software Development Cost Estimator
+# 🚀 DevCost — Software Development Cost Estimator
 
-DevCost is a responsive, local-first project estimation workspace built for a Software Project Management course. Compare effort models, inspect assumptions, plan a budget, and explore how project changes affect delivery.
+<p align="center">
+  <img src="https://img.shields.io/badge/Project-DevCost-6366F1?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Domain-Software%20Project%20Management-0F766E?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Status-Live-16A34A?style=for-the-badge" />
+</p>
 
-## Setup
+<p align="center">
+  **Estimate smarter. Plan better. Build efficiently.**
+</p>
 
-Requirements: Node.js 20.19+ or 22.12+ and npm.
+<p align="center">
+  A software project cost estimation platform designed to calculate development effort, predict project duration, plan budgets, compare estimation methods, and visualize project analytics.
+</p>
+
+<p align="center">
+  🌐 **Live Website:** https://devcost-spm.netlify.app/
+  <br/>
+  💻 **GitHub Repository:** https://github.com/maddy-03-prog/DevCost-SPM
+</p>
+
+---
+
+## 📌 About the Project
+
+**DevCost** is a web-based Software Development Cost Estimator developed as part of Software Project Management (SPM).
+
+Estimating the cost and effort of a software project is an important part of project planning. DevCost simplifies this process by providing calculation tools, estimation models, budget planning, scenario analysis, and visual reports in one platform.
+
+The platform helps users understand how project size, complexity, team experience, development time, and resource costs influence the overall project estimate.
+
+## ✨ Key Features
+
+- 📊 **Interactive Dashboard** – View project estimation summaries and key metrics.
+- ⚙️ **Effort Calculator** – Estimate development effort in person-months.
+- 🧮 **COCOMO Calculator** – Calculate effort, development time, and average staffing using the COCOMO model.
+- 💰 **Budget Planner** – Estimate project expenses, including team and other project costs.
+- ⚖️ **Method Comparison** – Compare different software estimation approaches.
+- 🔬 **What-if Simulator** – Explore how changing project parameters affects estimates.
+- 📈 **Reports & Analytics** – Visualize results through charts, graphs, and tables.
+- 🌙 **Dark Mode** – Switch between light and dark interfaces.
+- 📁 **Project Management** – Organize and review estimation data.
+
+## 🧩 Project Modules
+
+| Module | Purpose |
+|---|---|
+| Dashboard | Project overview and estimation summary |
+| Effort Calculator | Person-month effort estimation |
+| COCOMO Calculator | Effort, time, and staffing prediction |
+| Budget Planner | Project budget and expense estimation |
+| Method Comparison | Compare estimation techniques |
+| What-if Simulator | Analyze alternative project scenarios |
+| Reports & Export | Review and export estimation results |
+| Settings | Customize application preferences |
+
+## 🧮 COCOMO Estimation Model
+
+DevCost includes the **Constructive Cost Model (COCOMO)** for estimating software development effort.
+
+The Basic COCOMO equations are:
+
+**1. Development Effort**
+
+\[
+E = a \times (KLOC)^b
+\]
+
+**2. Development Time**
+
+\[
+T = c \times (E)^d
+\]
+
+**3. Average Team Size**
+
+\[
+P = \frac{E}{T}
+\]
+
+Where:
+
+- `E` = Development effort in person-months
+- `T` = Development time in months
+- `P` = Average number of developers
+- `KLOC` = Thousands of Lines of Code
+- `a, b, c, d` = Model coefficients
+
+The Basic COCOMO model supports three project categories:
+
+- Organic
+- Semi-Detached
+- Embedded
+
+## 📊 Analytics & Visualization
+
+DevCost uses visual analytics to make estimation results easier to understand.
+
+Visualizations can help users examine:
+
+- Estimated development effort
+- Project duration
+- Team size distribution
+- Budget breakdown
+- Estimation method comparison
+- Scenario-based changes
+
+## 🛠️ Technology Stack
+
+The project uses a modern web development approach.
+
+- **Frontend:** React, TypeScript
+- **Styling:** Tailwind CSS
+- **Charts:** Recharts
+- **Build Tool:** Vite
+- **Deployment:** Netlify
+- **Version Control:** Git and GitHub
+
+*Update this list if your final implementation uses different libraries.*
+
+## 🚀 Getting Started
+
+Follow these steps to run DevCost locally.
+
+### Prerequisites
+
+- Node.js
+- npm
+- Git
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/maddy-03-prog/DevCost-SPM.git
+```
+
+### 2. Navigate to the Project
+
+```bash
+cd DevCost-SPM
+```
+
+### 3. Install Dependencies
 
 ```bash
 npm install
+```
+
+### 4. Start the Development Server
+
+```bash
 npm run dev
 ```
 
-Vite prints the local URL (normally `http://localhost:5173`). Useful validation commands:
+Open the local URL displayed in your terminal.
+
+### 5. Create a Production Build
 
 ```bash
 npm run build
-npm run lint
-npm test
 ```
 
-There is no backend. The active project, settings, and saved scenarios persist in browser local storage. Use **Reports → Project JSON** to make a portable backup.
+## 🌐 Live Deployment
 
-## Features
+Experience DevCost here:
 
-- Overview with the Iron Triangle, technique cards, Cone of Uncertainty, and live project summary.
-- LOC, Function Point, and productivity-based effort calculators, including the 14 GSC ratings and language LOC conversion.
-- Basic and Intermediate COCOMO with all 15 cost drivers, EAF, phase distribution, and staffing profile.
-- Editable labor and non-labor budget, contingency/overhead/tax, currency formatting, and cash-flow charts.
-- Five-method comparison with an effort range, variance insight, normalized chart, and qualitative method-fit radar.
-- What-if sliders, impact deltas, driver sensitivity, and up to four saved scenarios.
-- Executive report with module results, assumptions, risk notes, chart images in PDF, CSV export, JSON import/export, and print layout.
-- Light, dark, and system themes; six accent presets and a custom color; compact/comfortable density; Indian/international number grouping.
-- One-click QuickBite online food-delivery demo project.
+**https://devcost-spm.netlify.app/**
 
-## Formulas and modeling assumptions
+The application is deployed using Netlify.
 
-All calculation logic is implemented as pure typed functions in `src/lib/estimation/` and covered with Vitest.
+## 👥 Contributors
 
-- **Basic COCOMO:** effort = `a × KLOC^b`; development time = `c × effort^d`; average people = `effort / time`.
-  - Organic: `a=2.4, b=1.05, c=2.5, d=0.38`
-  - Semi-detached: `a=3.0, b=1.12, c=2.5, d=0.35`
-  - Embedded: `a=3.6, b=1.20, c=2.5, d=0.32`
-- **Intermediate COCOMO:** effort = `a × KLOC^b × EAF`; EAF is the product of the 15 selected cost-driver multipliers. Intermediate coefficients and driver values are in `src/lib/estimation/cocomo.ts` and `src/data/drivers.ts`.
-- **Function Points:** UFP is the weighted count total; VAF = `0.65 + 0.01 × ΣGSC`; AFP = `UFP × VAF`; effort = `AFP / FP productivity`. LOC conversion is Java 53, Python 35, JavaScript 47, C 128, C++ 55, and C# 54 LOC/FP.
-- **PERT:** expected effort = `(O + 4M + P) / 6`; standard deviation = `(P − O) / 6`.
-- **Effort conversions:** a person-month is 160 hours. LOC effort is total LOC divided by LOC/person-month; unit productivity converts unit-hours into person-months.
-- **Budget:** personnel is headcount × monthly salary × allocation × months. Monthly cloud costs are multiplied by project duration. Overhead applies to direct cost; contingency applies to direct cost plus overhead; optional tax applies after contingency.
-- **Phase distribution:** this teaching build uses a documented Boehm-inspired four-phase allocation (Plans & Requirements / Design / Coding / Integration & Test): Organic `6/40/38/16%`, Semi-detached `8/42/34/16%`, Embedded `10/43/32/15%`. Design combines product and detailed design effort. These values are illustrative phase shares, not a calibrated schedule baseline.
-- **Staffing profile:** a normalized Rayleigh-style curve spreads effort across the estimated COCOMO duration. It is an indicative planning shape, not a hiring plan.
-- **Comparison and scenarios:** method cost uses the shared average monthly salary; team-based duration and cash-flow charts are planning approximations and should be reviewed against real delivery constraints.
+This project is developed collaboratively.
 
-## Folder structure
+| Contributor | Role |
+|---|---|
+| Madhan Kumar | Project development and implementation |
+| Project Collaborator | Collaborative development and implementation |
 
-```text
-src/
-  components/ui/       Reusable accessible form, card, modal, table, and chart components
-  data/                COCOMO driver and method-fit data
-  hooks/               Shared number formatting hook
-  lib/estimation/      Pure formulas, report calculations, and Vitest tests
-  pages/               Overview and seven estimation/report/settings modules
-  store/               Persisted shared project and settings state
-  test/                Vitest setup
-```
+## 🎯 Project Objectives
 
-## Screenshots
+- Simplify software development cost estimation.
+- Understand and apply software estimation models.
+- Predict project effort and development duration.
+- Support project budget planning.
+- Compare estimation techniques.
+- Understand the impact of changing project parameters.
+- Present estimation results through visual analytics.
 
-_Screenshots placeholder — add Overview, COCOMO, Budget, and Reports screenshots here._
+## 🔮 Future Enhancements
+
+- AI-assisted project estimation.
+- Historical project data analysis.
+- More estimation models.
+- Advanced team productivity analysis.
+- Enhanced PDF and Excel reporting.
+- Cloud-based project storage and collaboration.
+
+## 📚 Academic Context
+
+**Subject:** Software Project Management  
+**Project:** DevCost — Software Development Cost Estimator
+
+Developed as an academic project to demonstrate software effort estimation, cost planning, project analysis, and visualization concepts.
+
+---
+
+<p align="center">
+  **DevCost — Estimate Smarter. Develop Better.**
+</p>
+
+<p align="center">
+  ⭐ If you find this project interesting, consider giving the repository a star!
+</p>
